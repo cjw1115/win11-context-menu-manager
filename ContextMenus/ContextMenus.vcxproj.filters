@@ -30,4 +30,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Source.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

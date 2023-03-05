@@ -160,6 +160,7 @@
     </Midl>
   </ItemGroup>
   <ItemGroup>
+    <None Include="AppxSample_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
     <Text Include="readme.txt">

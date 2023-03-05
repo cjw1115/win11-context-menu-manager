@@ -33,16 +33,18 @@
 	</Capabilities>
 	<Applications>
 		<Application Id="App" Executable="ContextMenuManager.exe" uap10:TrustLevel="mediumIL" uap10:RuntimeBehavior="win32App">
-			<uap:VisualElements AppListEntry="none" DisplayName="PhotoStoreDemo" Description="PhotoStoreDemo" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent">
+			<uap:VisualElements AppListEntry="none" DisplayName="ContextMenuManager" Description="ContextMenuManager" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent">
 				<uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
 				</uap:DefaultTile>
-				<uap:SplashScreen Image="Assets\SplashScreen.png" />
 			</uap:VisualElements>
 			<Extensions>
 				<desktop4:Extension Category="windows.fileExplorerContextMenus">
 					<desktop4:FileExplorerContextMenus>
 						<desktop5:ItemType Type="*">
 							<desktop5:Verb Id="Command1" Clsid="30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99" />
+						</desktop5:ItemType>
+						<desktop5:ItemType Type=".txt">
+							<desktop5:Verb Id="Command2" Clsid="30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99" />
 						</desktop5:ItemType>
 					</desktop4:FileExplorerContextMenus>
 				</desktop4:Extension>

@@ -7,12 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MenuManager", "MenuManager\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContextMenus", "ContextMenus\ContextMenus.vcxproj", "{BE8761BB-B881-4271-8625-8C73F8C4C5B8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manifest", "Manifest", "{A3124789-3BF3-4E75-91BB-58DCE096447B}"
-	ProjectSection(SolutionItems) = preProject
-		AppxManifest.xml = AppxManifest.xml
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppxSample", "AppxSample\AppxSample.vcxproj", "{27B0F693-3D7A-468C-9AE0-C9C0AAC44ABE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7BBEDAB3-0C9C-4E06-93DF-D2634822DB22}"
+	ProjectSection(SolutionItems) = preProject
+		SparsePackage\AppxManifest.xml = SparsePackage\AppxManifest.xml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
