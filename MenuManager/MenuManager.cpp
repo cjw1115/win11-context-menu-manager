@@ -62,8 +62,18 @@ bool registerSparsePackage(wstring externalLocation, wstring sparsePkgPath)
 
 int main()
 {
-    std::wstring externalLocation = L"D:\\Code\\Repos\\MenuManager\\x64\\Debug";
-    std::wstring sparsePackageLocation = L"D:\\Code\\Repos\\MenuManager\\x64\\Debug\\ContextMenuySparseAppx.msix";
+    wchar_t buffer[1024];
+    auto realSize = GetModuleFileName(nullptr, buffer, 1024);
+    std::wstring exePath{ buffer,buffer + realSize };
+    std::wstring directory;
+    const size_t last_slash_idx = exePath.rfind('\\');
+    if (std::wstring::npos != last_slash_idx)
+    {
+        directory = exePath.substr(0, last_slash_idx);
+    }
+
+    std::wstring externalLocation = directory;
+    std::wstring sparsePackageLocation = directory + L"\\ContextMenuySparseAppx.msix";
     if (!IsRunningWithIdentity())
     {
         registerSparsePackage(externalLocation, sparsePackageLocation);

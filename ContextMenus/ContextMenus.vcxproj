@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -178,6 +179,15 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Source.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ContextMenus.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Users\jmchen\Downloads\image-x-ico_36116.ico" />
+    <Image Include="..\..\..\..\Users\jmchen\Downloads\wechat.ico" />
+    <Image Include="..\..\..\..\Users\jmchen\Downloads\wechat.png" />
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

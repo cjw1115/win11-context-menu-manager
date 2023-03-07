@@ -15,10 +15,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
-    FILE* logFile = nullptr;
-    fopen_s(&logFile, "D:\\Code\\Repos\\MenuManager\\x64\\Debug\\log.txt", "w");
-    fclose(logFile);
-
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
@@ -46,7 +42,22 @@ public:
         *name = title.release();
         return S_OK;
     }
-    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon) { *icon = nullptr; return E_NOTIMPL; }
+    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon)
+    {
+        HMODULE moduleHandle = nullptr;
+        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)&DllMain, &moduleHandle);
+
+        *icon = nullptr;
+        wchar_t buffer[_MAX_PATH];
+        auto realSize = GetModuleFileName(moduleHandle, buffer, _MAX_PATH);
+        std::wstring path{ buffer,buffer + realSize };
+        path += L",-110";
+        auto title = wil::make_cotaskmem_string_nothrow(path.c_str());
+        RETURN_IF_NULL_ALLOC(title);
+        *icon = title.release();
+        return S_OK;
+    }
+
     IFACEMETHODIMP GetToolTip(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* infoTip) { *infoTip = nullptr; return E_NOTIMPL; }
     IFACEMETHODIMP GetCanonicalName(_Out_ GUID* guidCommandName) { *guidCommandName = GUID_NULL;  return S_OK; }
     IFACEMETHODIMP GetState(_In_opt_ IShellItemArray* selection, _In_ BOOL okToBeSlow, _Out_ EXPCMDSTATE* cmdState)
@@ -98,13 +109,12 @@ protected:
 class __declspec(uuid("30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99")) TestExplorerCommand4Handler final : public TestExplorerCommandBase
 {
 public:
-    const wchar_t* Title() override { return L"Im HahaBro"; }
+    const wchar_t* Title() override { return L"Hey! Click Me!"; }
 };
 
 CoCreatableClass(TestExplorerCommand4Handler)
 
 CoCreatableClassWrlCreatorMapInclude(TestExplorerCommand4Handler)
-
 
 
 STDAPI DllGetActivationFactory(_In_ HSTRING activatableClassId, _COM_Outptr_ IActivationFactory** factory)

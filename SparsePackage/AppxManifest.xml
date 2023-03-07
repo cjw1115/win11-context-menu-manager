@@ -43,9 +43,6 @@
 						<desktop5:ItemType Type="*">
 							<desktop5:Verb Id="Command1" Clsid="30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99" />
 						</desktop5:ItemType>
-						<desktop5:ItemType Type=".txt">
-							<desktop5:Verb Id="Command2" Clsid="30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99" />
-						</desktop5:ItemType>
 					</desktop4:FileExplorerContextMenus>
 				</desktop4:Extension>
 				<com:Extension Category="windows.comServer">
