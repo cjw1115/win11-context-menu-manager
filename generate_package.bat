@@ -1,3 +1,5 @@
+@echo off
+
 call VsDevCmd.bat
 
 

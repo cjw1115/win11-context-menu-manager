@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MenuManagerNet": {
+      "commandName": "Project",
+      "commandLineArgs": "-type \".txt\" -title \"open\" -target \"C:\\Program Files\\Microsoft VS Code\\Code.exe\""
+    }
+  }
+}
