@@ -95,8 +95,8 @@ namespace Program
         private async Task _launchBuildScript()
         {
             Process proc = new Process();
-            proc.StartInfo.WorkingDirectory = @"D:\Code\Repos\MenuManager";
-            proc.StartInfo.FileName = @"D:\Code\Repos\MenuManager\generate_package.bat";
+            proc.StartInfo.WorkingDirectory = @".\Appx\";
+            proc.StartInfo.FileName = @".\generate_package.bat";
             proc.StartInfo.CreateNoWindow = false;
             proc.Start();
             proc.WaitForExit();

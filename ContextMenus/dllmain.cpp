@@ -7,6 +7,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <shellapi.h>
+#include <winrt/base.h>
+
+#pragma comment(lib,"Shell32.lib")
 
 using namespace Microsoft::WRL;
 
@@ -42,22 +46,7 @@ public:
         *name = title.release();
         return S_OK;
     }
-    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon)
-    {
-        HMODULE moduleHandle = nullptr;
-        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)&DllMain, &moduleHandle);
-
-        *icon = nullptr;
-        wchar_t buffer[_MAX_PATH];
-        auto realSize = GetModuleFileName(moduleHandle, buffer, _MAX_PATH);
-        std::wstring path{ buffer,buffer + realSize };
-        path += L",-110";
-        auto title = wil::make_cotaskmem_string_nothrow(path.c_str());
-        RETURN_IF_NULL_ALLOC(title);
-        *icon = title.release();
-        return S_OK;
-    }
-
+    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon) { *icon = nullptr; return E_NOTIMPL; }
     IFACEMETHODIMP GetToolTip(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* infoTip) { *infoTip = nullptr; return E_NOTIMPL; }
     IFACEMETHODIMP GetCanonicalName(_Out_ GUID* guidCommandName) { *guidCommandName = GUID_NULL;  return S_OK; }
     IFACEMETHODIMP GetState(_In_opt_ IShellItemArray* selection, _In_ BOOL okToBeSlow, _Out_ EXPCMDSTATE* cmdState)
@@ -65,7 +54,7 @@ public:
         *cmdState = State(selection);
         return S_OK;
     }
-    IFACEMETHODIMP Invoke(_In_opt_ IShellItemArray* selection, _In_opt_ IBindCtx*) noexcept try
+    IFACEMETHODIMP Invoke(_In_opt_ IShellItemArray* selection, _In_opt_ IBindCtx* ctx) noexcept try
     {
         HWND parent = nullptr;
         if (m_site)
@@ -89,7 +78,13 @@ public:
             title << L"(no selected items)";
         }
 
-        MessageBox(parent, L"im hahbro", L"", MB_OK);
+        ComPtr<IShellItem> item;
+        HRESULT hr = selection->GetItemAt(0, item.GetAddressOf());
+        LPWSTR filePath;
+        hr = item->GetDisplayName(SIGDN::SIGDN_FILESYSPATH, &filePath);
+        ShellExecuteA(parent, "open", "C:\\Program Files\\Microsoft VS Code\\Code.exe", winrt::to_string(filePath).c_str(), NULL, SW_SHOWNORMAL | SW_NORMAL);
+
+        CoTaskMemFree(filePath);
         return S_OK;
     }
     CATCH_RETURN();
@@ -109,7 +104,7 @@ protected:
 class __declspec(uuid("30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99")) TestExplorerCommand4Handler final : public TestExplorerCommandBase
 {
 public:
-    const wchar_t* Title() override { return L"Hey! Click Me!"; }
+    const wchar_t* Title() override { return L"Im HahaBro"; }
 };
 
 CoCreatableClass(TestExplorerCommand4Handler)

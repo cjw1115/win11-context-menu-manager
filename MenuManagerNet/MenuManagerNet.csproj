@@ -13,4 +13,8 @@
 	  </None>
 	</ItemGroup>
 
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <Exec Command="xcopy /Y /s /q $(ProjectDir)..\Appx  .\$(OutDir)Appx\" />
+	</Target>
+
 </Project>

@@ -13,7 +13,7 @@
   IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop4 desktop5 uap10 com">
 	<Identity
     Name="ContextMenuManager"
-    Publisher="CN=cq"
+    Publisher="CN=MenuManager"
     Version="1.0.0.0" />
 	<Properties>
 		<DisplayName>ContextMenuManager</DisplayName>
