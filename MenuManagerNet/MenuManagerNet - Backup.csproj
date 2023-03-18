@@ -8,13 +8,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\ContextMenus\ContextMenus.vcxproj">
+	    <Private>True</Private>
+	    <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
+	  </ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Update="TemplateAppxManifest.xml">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="xcopy /Y /s /q $(ProjectDir)..\Appx  .\$(OutDir)Appx\&#xD;&#xA;xcopy /Y /s /q $(ProjectDir)..\$(Platform)\$(Configuration)\ContextMenus.dll .\$(OutDir)" />
+	  <Exec Command="xcopy /Y /s /q $(ProjectDir)..\Appx  .\$(OutDir)Appx\&#xD;&#xA;xcopy /Y /s /q $(ProjectDir)..\Appx  .\$(OutDir)Appx\" />
 	</Target>
 
 </Project>

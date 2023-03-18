@@ -7,12 +7,17 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
 #include <shellapi.h>
 #include <winrt/base.h>
+#include <nlohmann/json.hpp>
 
 #pragma comment(lib,"Shell32.lib")
 
 using namespace Microsoft::WRL;
+using json = nlohmann::json;
+
+constexpr char MENU_CONFIG_FILE[] = "D:\\Code\\Repos\\MenuManager\\MenuManagerNet\\bin\\x64\\Debug\\net6.0-windows10.0.22000.0\\menus.config";
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -40,13 +45,38 @@ public:
     // IExplorerCommand
     IFACEMETHODIMP GetTitle(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* name)
     {
+        /*while (!IsDebuggerPresent())
+        {
+            Sleep(10);
+        }*/
+
+        std::ifstream menuConfigFile(MENU_CONFIG_FILE);
+        json config = json::parse(menuConfigFile);
+        std::string menuTitle = config[0]["Title"];
+        auto menuTitleW = winrt::to_hstring(menuTitle);
+
         *name = nullptr;
-        auto title = wil::make_cotaskmem_string_nothrow(Title());
+        auto title = wil::make_cotaskmem_string_nothrow(menuTitleW.c_str());
         RETURN_IF_NULL_ALLOC(title);
         *name = title.release();
         return S_OK;
     }
-    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon) { *icon = nullptr; return E_NOTIMPL; }
+
+    IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon)
+    { 
+        std::ifstream menuConfigFile(MENU_CONFIG_FILE);
+        json config = json::parse(menuConfigFile);
+        std::string menuTarget = config[0]["Target"];
+        auto menuTitleW = winrt::to_hstring(menuTarget);
+
+
+        *icon = nullptr;
+        auto title = wil::make_cotaskmem_string_nothrow(menuTitleW.c_str());
+        RETURN_IF_NULL_ALLOC(title);
+        *icon = title.release();
+        return S_OK;
+    }
+
     IFACEMETHODIMP GetToolTip(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* infoTip) { *infoTip = nullptr; return E_NOTIMPL; }
     IFACEMETHODIMP GetCanonicalName(_Out_ GUID* guidCommandName) { *guidCommandName = GUID_NULL;  return S_OK; }
     IFACEMETHODIMP GetState(_In_opt_ IShellItemArray* selection, _In_ BOOL okToBeSlow, _Out_ EXPCMDSTATE* cmdState)
@@ -64,8 +94,14 @@ public:
             RETURN_IF_FAILED(oleWindow->GetWindow(&parent));
         }
 
+        std::ifstream menuConfigFile(MENU_CONFIG_FILE);
+        json config = json::parse(menuConfigFile);
+        std::string menuTitle = config[0]["Title"];
+        auto menuTitleW = winrt::to_hstring(menuTitle);
+        std::string menuTarget = config[0]["Target"];
+
         std::wostringstream title;
-        title << Title();
+        title << menuTitleW.c_str();
 
         if (selection)
         {
@@ -82,7 +118,7 @@ public:
         HRESULT hr = selection->GetItemAt(0, item.GetAddressOf());
         LPWSTR filePath;
         hr = item->GetDisplayName(SIGDN::SIGDN_FILESYSPATH, &filePath);
-        ShellExecuteA(parent, "open", "C:\\Program Files\\Microsoft VS Code\\Code.exe", winrt::to_string(filePath).c_str(), NULL, SW_SHOWNORMAL | SW_NORMAL);
+        ShellExecuteA(parent, "open", menuTarget.c_str(), winrt::to_string(filePath).c_str(), NULL, SW_SHOWNORMAL | SW_NORMAL);
 
         CoTaskMemFree(filePath);
         return S_OK;

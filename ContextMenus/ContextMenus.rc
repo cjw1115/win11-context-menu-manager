@@ -63,19 +63,6 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "icon1.ico"
-
-IDI_ICON2               ICON                    "C:\\Users\\jmchen\\Downloads\\wechat.ico"
-
-IDI_ICON3               ICON                    "C:\\Users\\jmchen\\Downloads\\image-x-ico_36116.ico"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// PNG
-//
-
-IDB_PNG1                PNG                     "C:\\Users\\jmchen\\Downloads\\wechat.png"
-
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 

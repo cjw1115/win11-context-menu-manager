@@ -13,6 +13,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuManagerGUI", "MenuManagerGUI\MenuManagerGUI.csproj", "{8C949C65-2058-43B9-8D6B-386B1CDB535A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MenuManagerNet", "MenuManagerNet\MenuManagerNet.csproj", "{6394489A-9F23-4E25-83FD-2BF77F96676E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BE8761BB-B881-4271-8625-8C73F8C4C5B8} = {BE8761BB-B881-4271-8625-8C73F8C4C5B8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
