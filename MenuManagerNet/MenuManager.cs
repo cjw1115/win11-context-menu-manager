@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 
 namespace Program
@@ -79,6 +80,8 @@ namespace Program
 
             var externalLocation = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             var sparseAppxPath = await _addMenuItem(item);
+
+            await _removeSparsePackage();
             if (!await _registerSparsePackage(externalLocation, sparseAppxPath))
             {
                 return;
@@ -216,6 +219,31 @@ namespace Program
                 Console.WriteLine($"Installation Error: {result.ExtendedErrorCode}");
             }
             return registration;
+        }
+
+        private async Task<bool> _removeSparsePackage()
+        {
+            PackageManager packageManager = new PackageManager();
+            string targetPackageName = "ContextMenuManager";
+            Package targetPackage = null;
+
+            foreach (var item in packageManager.FindPackagesForUser(string.Empty))
+            {
+                if (item.Id.FullName.Contains(targetPackageName))
+                {
+                    targetPackage = item;
+                }
+            }
+            if (targetPackage != null)
+            {
+                var result = await packageManager.RemovePackageAsync(targetPackage.Id.FullName, RemovalOptions.None);
+                Console.WriteLine($"Remove Package {targetPackage.Id.FullName} finished with message:{result.ErrorText}");
+            }
+            else
+            {
+                Console.WriteLine($"Can not find installed pacakge with name {targetPackageName}");
+            }
+            return true;
         }
 
     }
