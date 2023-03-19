@@ -11,11 +11,26 @@
 using namespace winrt;
 using json = nlohmann::json;
 
-constexpr char MENU_CONFIG_FILE[] = "D:\\Code\\Repos\\MenuManager\\MenuManagerNet\\bin\\x64\\Debug\\net6.0-windows10.0.22000.0\\menus.config";
+constexpr char MENU_CONFIG_FILE[] = "D:\\Code\\Repos\\MenuManager\\MenuManagerNet\\bin\\x64\\Debug\\net6.0-windows10.0.22000.0\\menus_config.json";
 
-ExplorerCommandBase::ExplorerCommandBase(REFIID commandInterface)
+ExplorerCommandBase::ExplorerCommandBase(std::wstring commandInterface)
 {
-	m_commandInterface = commandInterface;
+	m_commandInterfaceId = commandInterface;
+
+	std::ifstream menuConfigFile(MENU_CONFIG_FILE);
+	json config = json::parse(menuConfigFile);
+	for (size_t i = 0; i < config.size(); i++)
+	{
+		std::wstringstream comServer;
+		comServer << "{" << winrt::to_hstring(config[i]["ComServer"]).c_str() << "}";
+		if (m_commandInterfaceId == comServer.str())
+		{
+			m_title = winrt::to_hstring(config[i]["Title"]);
+			m_target = winrt::to_hstring(config[i]["Target"]);
+
+			break;
+		}
+	}
 }
 
 ExplorerCommandBase::~ExplorerCommandBase()
@@ -27,18 +42,8 @@ const EXPCMDSTATE ExplorerCommandBase::State(_In_opt_ IShellItemArray* selection
 
 IFACEMETHODIMP ExplorerCommandBase::GetTitle(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* name)
 {
-	/*while (!IsDebuggerPresent())
-	{
-		Sleep(10);
-	}*/
-
-	std::ifstream menuConfigFile(MENU_CONFIG_FILE);
-	json config = json::parse(menuConfigFile);
-	std::string menuTitle = config[0]["Title"];
-	auto menuTitleW = winrt::to_hstring(menuTitle);
-
 	*name = nullptr;
-	auto title = wil::make_cotaskmem_string_nothrow(menuTitleW.c_str());
+	auto title = wil::make_cotaskmem_string_nothrow(m_title.c_str());
 	RETURN_IF_NULL_ALLOC(title);
 	*name = title.release();
 	return S_OK;
@@ -46,14 +51,8 @@ IFACEMETHODIMP ExplorerCommandBase::GetTitle(_In_opt_ IShellItemArray* items, _O
 
 IFACEMETHODIMP ExplorerCommandBase::GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon)
 {
-	std::ifstream menuConfigFile(MENU_CONFIG_FILE);
-	json config = json::parse(menuConfigFile);
-	std::string menuTarget = config[0]["Target"];
-	auto menuTitleW = winrt::to_hstring(menuTarget);
-
-
 	*icon = nullptr;
-	auto title = wil::make_cotaskmem_string_nothrow(menuTitleW.c_str());
+	auto title = wil::make_cotaskmem_string_nothrow(m_target.c_str());
 	RETURN_IF_NULL_ALLOC(title);
 	*icon = title.release();
 	return S_OK;
@@ -76,32 +75,11 @@ IFACEMETHODIMP ExplorerCommandBase::Invoke(_In_opt_ IShellItemArray* selection, 
 		RETURN_IF_FAILED(oleWindow->GetWindow(&parent));
 	}*/
 
-	std::ifstream menuConfigFile(MENU_CONFIG_FILE);
-	json config = json::parse(menuConfigFile);
-	std::string menuTitle = config[0]["Title"];
-	auto menuTitleW = winrt::to_hstring(menuTitle);
-	std::string menuTarget = config[0]["Target"];
-
-	std::wostringstream title;
-	title << menuTitleW.c_str();
-
-	if (selection)
-	{
-		DWORD count;
-		RETURN_IF_FAILED(selection->GetCount(&count));
-		title << L" (" << count << L" selected items)";
-	}
-	else
-	{
-		title << L"(no selected items)";
-	}
-
 	winrt::com_ptr<IShellItem> item;
 	HRESULT hr = selection->GetItemAt(0, item.put());
 	LPWSTR filePath;
 	hr = item->GetDisplayName(SIGDN::SIGDN_FILESYSPATH, &filePath);
-	ShellExecuteA(parent, "open", menuTarget.c_str(), winrt::to_string(filePath).c_str(), NULL, SW_SHOWNORMAL | SW_NORMAL);
-
+	ShellExecute(parent, L"open", m_target.c_str(), filePath, NULL, SW_SHOWNORMAL | SW_NORMAL);
 	CoTaskMemFree(filePath);
 	return S_OK;
 }

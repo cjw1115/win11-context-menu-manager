@@ -44,7 +44,7 @@ struct callback_factory : winrt::implements<callback_factory, IClassFactory>
 {
     callback_factory(REFGUID guid)
     {
-        m_classGuid = guid;
+        m_classGuid = winrt::to_hstring(guid);
     }
 
     HRESULT __stdcall CreateInstance(
@@ -59,7 +59,8 @@ struct callback_factory : winrt::implements<callback_factory, IClassFactory>
             return CLASS_E_NOAGGREGATION;
         }
 
-        auto it = winrt::make_self<ExplorerCommandBase>(m_classGuid);
+        
+        auto it = winrt::make_self<ExplorerCommandBase>(m_classGuid.c_str());
         return it->QueryInterface(iid, result);
     }
 
@@ -69,17 +70,17 @@ struct callback_factory : winrt::implements<callback_factory, IClassFactory>
     }
 
 private:
-    winrt::guid m_classGuid;
+    winrt::hstring m_classGuid;
 };
 
 STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _COM_Outptr_ void** instance)
 {
-    int timer = 5000;
+    /*int timer = 5000;
     while (!IsDebuggerPresent() && timer > 0)
     {
         Sleep(10);
         timer -= 10;
-    }
+    }*/
 
     *instance = (void*)winrt::make_self<callback_factory>(rclsid).detach();
     return S_OK;

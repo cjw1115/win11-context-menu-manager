@@ -48,9 +48,9 @@
 				</desktop4:Extension>
 				<com:Extension Category="windows.comServer">
 					<com:ComServer>
-						<com:SurrogateServer  DisplayName="Context menu verb handler">
+						<!--<com:SurrogateServer  DisplayName="Context menu verb handler">
 							<com:Class Id="30DEEDF6-63EA-4042-A7D8-0A9E1B17BB99" Path="ContextMenus.dll" ThreadingModel="STA"/>
-						</com:SurrogateServer>
+						</com:SurrogateServer>-->
 					</com:ComServer>
 				</com:Extension>
 			</Extensions>

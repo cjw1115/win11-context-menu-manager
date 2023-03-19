@@ -13,12 +13,13 @@ namespace Program
 {
     public class MenuManager
     {
-        public const string MENU_CONFIG_FILE = "menus.config";
+        public const string MENU_CONFIG_FILE = "menus_config.json";
 
         private Dictionary<string, string> AvaliableArgs = new Dictionary<string, string>
         {
-            { "-t","Menu item title"},
-            { "-p","Menu item target process"},
+            { "-title","Menu item title"},
+            { "-target","Menu item target process"},
+            { "-type","Target file extention" }
         };
 
         private List<MenuItem> _menuItems = new List<MenuItem>();
@@ -36,7 +37,7 @@ namespace Program
                 configFile = File.OpenRead(MENU_CONFIG_FILE);
                 _menuItems = System.Text.Json.JsonSerializer.Deserialize<List<MenuItem>>(configFile);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Open menu config file failed:{ex.Message}");
             }
@@ -51,12 +52,12 @@ namespace Program
             FileStream configFile = null;
             try
             {
-                if(File.Exists(MENU_CONFIG_FILE))
+                if (File.Exists(MENU_CONFIG_FILE))
                 {
                     File.Delete(MENU_CONFIG_FILE);
                 }
                 configFile = File.Open(MENU_CONFIG_FILE, FileMode.CreateNew);
-                var content  = System.Text.Json.JsonSerializer.Serialize(_menuItems);
+                var content = System.Text.Json.JsonSerializer.Serialize(_menuItems);
                 var configBytes = System.Text.Encoding.UTF8.GetBytes(content);
                 configFile.Write(configBytes, 0, configBytes.Length);
             }
@@ -99,15 +100,45 @@ namespace Program
 
         private async Task<string> _addMenuItem(MenuItem item)
         {
+            item.ComServer = Guid.NewGuid();
             _menuItems.Add(item);
             _saveMenus(); //0. Save item to menus.json
-            await _updateManifest(item, true); //1. Add menu item in AppxManifest;
+            await _updateManifest(_menuItems); //1. Add menu item in AppxManifest;
             return await _launchBuildScript(); //2. Build & Sign Sparse Appx;
         }
 
-        private async Task _updateManifest(MenuItem item, bool isAdd)
+        private XElement _createSurrogateServerElement(MenuItem item, int index)
         {
-            var manifestFile = System.IO.File.OpenRead(@"TemplateAppxManifest.xml");
+            XNamespace com = "http://schemas.microsoft.com/appx/manifest/com/windows10";
+            var surrogateServer = new XElement(com + "SurrogateServer");
+
+            surrogateServer.SetAttributeValue("DisplayName", $"Context menu verb handler {index}");
+            var comClass = new XElement(com + "Class");
+            comClass.SetAttributeValue("Id", item.ComServer);
+            comClass.SetAttributeValue("Path", "ContextMenus.dll");
+            comClass.SetAttributeValue("ThreadingModel", "STA");
+
+            surrogateServer.Add(comClass);
+            return surrogateServer;
+        }
+
+        private XElement _createItemTypeElement(MenuItem item)
+        {
+            XNamespace desktop5 = "http://schemas.microsoft.com/appx/manifest/desktop/windows10/5";
+            var newItemElement = new XElement(desktop5 + "ItemType");
+
+            newItemElement.SetAttributeValue("Type", item.FileType);
+            var verbElement = new XElement(desktop5 + "Verb");
+            verbElement.SetAttributeValue("Id", Guid.NewGuid().ToString().Replace("-", ""));
+            verbElement.SetAttributeValue("Clsid", item.ComServer);
+
+            newItemElement.Add(verbElement);
+            return newItemElement;
+        }
+
+        private async Task _updateManifest(List<MenuItem> menuItems)
+        {
+            var manifestFile = File.OpenRead(@"TemplateAppxManifest.xml");
             XmlReader reader = XmlReader.Create(manifestFile);
             var root = XDocument.Load(reader).Root;
             XmlNameTable nameTable = reader.NameTable;
@@ -117,21 +148,16 @@ namespace Program
             namespaceManager.AddNamespace("com", "http://schemas.microsoft.com/appx/manifest/com/windows10");
             namespaceManager.AddNamespace("prefix", "http://schemas.microsoft.com/appx/manifest/foundation/windows10");
 
-            var comClass = root.XPathSelectElement("//com:Class", namespaceManager);
-            var clsid = comClass.Attribute("Id").Value;
 
+            var comServer = root.XPathSelectElement("//com:ComServer", namespaceManager);
             var contextMenus = root.XPathSelectElement("//desktop4:FileExplorerContextMenus", namespaceManager);
-
-            XNamespace desktop5 = "http://schemas.microsoft.com/appx/manifest/desktop/windows10/5";
-            var newItemElement = new XElement(desktop5 + "ItemType");
-            
-            newItemElement.SetAttributeValue("Type", item.FileType);
-            var verbElement = new XElement(desktop5 + "Verb");
-            verbElement.SetAttributeValue("Id", Guid.NewGuid().ToString().Replace("-",""));
-            verbElement.SetAttributeValue("Clsid", clsid);
-
-            newItemElement.Add(verbElement);
-            contextMenus.Add(newItemElement);
+            int index = 0;
+            foreach (var item in menuItems)
+            {
+                comServer.Add(_createSurrogateServerElement(item, index));
+                contextMenus.Add(_createItemTypeElement(item));
+                index++;
+            }
 
             using (XmlTextWriter writer = new XmlTextWriter(@".\Appx\SparsePackage\AppxManifest.xml", System.Text.Encoding.UTF8))
             {
@@ -152,7 +178,7 @@ namespace Program
             proc.WaitForExit();
             return Path.Combine(workingDir, @"Appx\ContextMenuySparseAppx.msix");
         }
-        
+
         private MenuItem _processArgs(string[] args)
         {
             MenuItem item = new MenuItem();
@@ -208,7 +234,7 @@ namespace Program
             AddPackageOptions options = new AddPackageOptions();
             options.ExternalLocationUri = new Uri(externalLocation);
 
-            var result = await packageManager.AddPackageByUriAsync(new Uri(sparsePkgPath),options);
+            var result = await packageManager.AddPackageByUriAsync(new Uri(sparsePkgPath), options);
             if (result.IsRegistered)
             {
                 registration = true;

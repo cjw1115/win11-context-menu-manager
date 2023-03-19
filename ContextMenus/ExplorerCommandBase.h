@@ -10,7 +10,7 @@
 class ExplorerCommandBase : public winrt::implements<ExplorerCommandBase, IExplorerCommand, IObjectWithSite>
 {
 public:
-	ExplorerCommandBase(REFIID commandInterface);
+	ExplorerCommandBase(std::wstring guid);
 	~ExplorerCommandBase();
 
 	virtual const EXPCMDFLAGS Flags();
@@ -33,5 +33,8 @@ protected:
 	winrt::com_ptr<IUnknown> m_site;
 
 private:
-	winrt::guid m_commandInterface;
+	winrt::hstring m_commandInterfaceId;
+	winrt::hstring m_title;
+	winrt::hstring m_icon;
+	winrt::hstring m_target;
 };
