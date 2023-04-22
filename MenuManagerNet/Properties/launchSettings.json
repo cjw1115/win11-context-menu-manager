@@ -2,7 +2,7 @@
   "profiles": {
     "MenuManagerNet": {
       "commandName": "Project",
-      "commandLineArgs": "-type \"*\" -title \"View format\" -target \"C:\\Program Files\\MediaInfo\\MediaInfo.exe\""
+      "commandLineArgs": "-type \"*\" -title \"MediaInfo\" -target \"C:\\Program Files\\MediaInfo\\MediaInfo.exe\""
     }
   }
 }
