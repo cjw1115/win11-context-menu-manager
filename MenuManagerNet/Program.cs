@@ -1,4 +1,6 @@
-﻿namespace Program
+﻿using System;
+
+namespace Program
 {
     class Program
     {
@@ -7,6 +9,7 @@
             MenuManager manager = new MenuManager();
             var task = manager.Process(args);
             task.Wait();
+            Console.ReadLine();
         }
     }
 }

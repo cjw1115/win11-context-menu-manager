@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MenuManagerNet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,67 +23,36 @@ namespace Program
             { "-type","Target file extention" }
         };
 
-        private List<MenuItem> _menuItems = new List<MenuItem>();
-
-        public MenuManager()
-        {
-            _loadMenus();
-        }
-
-        private void _loadMenus()
-        {
-            FileStream configFile = null;
-            try
-            {
-                configFile = File.OpenRead(MENU_CONFIG_FILE);
-                _menuItems = System.Text.Json.JsonSerializer.Deserialize<List<MenuItem>>(configFile);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Open menu config file failed:{ex.Message}");
-            }
-            finally
-            {
-                configFile?.Close();
-            }
-        }
-
-        private void _saveMenus()
-        {
-            FileStream configFile = null;
-            try
-            {
-                if (File.Exists(MENU_CONFIG_FILE))
-                {
-                    File.Delete(MENU_CONFIG_FILE);
-                }
-                configFile = File.Open(MENU_CONFIG_FILE, FileMode.CreateNew);
-                var content = System.Text.Json.JsonSerializer.Serialize(_menuItems);
-                var configBytes = System.Text.Encoding.UTF8.GetBytes(content);
-                configFile.Write(configBytes, 0, configBytes.Length);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Save menu config file failed:{ex.Message}");
-            }
-            finally
-            {
-                configFile?.Close();
-            }
-        }
+        private IMenuConfig _menuConfig = new Win32MenuConfig(); 
 
         public async Task Process(string[] args)
         {
+            await _menuConfig.LoadAsync();
+
             var item = _processArgs(args);
-            if (item == null)
+            if (item != null)
             {
+                item.ComServer = Guid.NewGuid();
+                await _menuConfig.Add(item);
+                //0.Save item to menus.json
+                await _menuConfig.SaveAsync();
+            }
+
+            var items = await _menuConfig.GetAll();
+            if (items == null || items.Count == 0)
+            {
+                Console.WriteLine("Stop since no menu items");
                 return;
             }
 
-            var externalLocation = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            var sparseAppxPath = await _addMenuItem(item);
+            //1. Add menu item in AppxManifest;
+            await _updateManifest(items);
+            //2. Build & Sign Sparse Appx;
+            var sparseAppxPath = await _launchBuildScript();
 
             await _removeSparsePackage();
+
+            var externalLocation = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             if (!await _registerSparsePackage(externalLocation, sparseAppxPath))
             {
                 return;
@@ -96,15 +66,6 @@ namespace Program
             {
                 Console.WriteLine($"\t  {item.Key} : {item.Value}");
             }
-        }
-
-        private async Task<string> _addMenuItem(MenuItem item)
-        {
-            item.ComServer = Guid.NewGuid();
-            _menuItems.Add(item);
-            _saveMenus(); //0. Save item to menus.json
-            await _updateManifest(_menuItems); //1. Add menu item in AppxManifest;
-            return await _launchBuildScript(); //2. Build & Sign Sparse Appx;
         }
 
         private XElement _createSurrogateServerElement(MenuItem item, int index)

@@ -1,8 +1,7 @@
 {
   "profiles": {
     "MenuManagerNet": {
-      "commandName": "Project",
-      "commandLineArgs": "-type \"*\" -title \"MediaInfo\" -target \"C:\\Program Files\\MediaInfo\\MediaInfo.exe\""
+      "commandName": "Project"
     }
   }
 }
