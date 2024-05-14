@@ -11,7 +11,7 @@
 using namespace winrt;
 using json = nlohmann::json;
 
-constexpr char MENU_CONFIG_FILE[] = "D:\\Code\\Repos\\MenuManager\\MenuManagerNet\\bin\\x64\\Debug\\net6.0-windows10.0.22000.0\\menus_config.json";
+constexpr char MENU_CONFIG_FILE[] = "D:\\Code\\github\\win11-context-menu-manager\\MenuManagerNet\\bin\\x64\\Debug\\net6.0-windows10.0.22000.0\\menus_config.json";
 
 ExplorerCommandBase::ExplorerCommandBase(std::wstring commandInterface)
 {
